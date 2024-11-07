@@ -1,0 +1,402 @@
+/* 继承基础样式 */
+@import url('../styles.css');
+
+.compressor-container {
+    background: var(--app-bg);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.upload-area {
+    border: 2px dashed rgba(0, 122, 255, 0.3);
+    border-radius: 12px;
+    padding: 3rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+    border-color: rgba(0, 122, 255, 0.6);
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.upload-area.drag-over {
+    border-color: #007AFF;
+    background: rgba(0, 122, 255, 0.1);
+}
+
+.upload-area i {
+    font-size: 3rem;
+    color: #007AFF;
+    margin-bottom: 1rem;
+}
+
+.upload-area h3 {
+    margin: 1rem 0;
+    color: #333;
+}
+
+.upload-area p {
+    color: #666;
+    margin: 0.5rem 0;
+}
+
+.upload-area button {
+    background: #007AFF;
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: all 0.2s ease;
+}
+
+.upload-area button:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+}
+
+.settings-panel {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+}
+
+.setting-item {
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.setting-item label {
+    min-width: 120px;
+    color: #333;
+}
+
+.setting-item input[type="range"] {
+    flex: 1;
+}
+
+.setting-item input[type="number"] {
+    width: 100px;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.images-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.image-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.image-preview {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.image-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.download-btn {
+    background: #007AFF;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.download-btn:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+}
+
+/* 图片预览容器样式优化 */
+.image-preview-container {
+    display: flex;
+    gap: 30px;
+    margin: 2rem 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.original-preview,
+.compressed-preview {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.image-preview-wrapper {
+    width: 100%;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.image-preview-wrapper:hover {
+    transform: scale(1.02);
+}
+
+/* 修改图片预览样式 */
+.image-preview {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: contain;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    padding: 10px;
+    transition: all 0.3s ease;
+}
+
+/* 全屏预览模态框 */
+.image-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    padding: 40px;
+    box-sizing: border-box;
+    cursor: zoom-out;
+}
+
+.image-modal img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    margin: auto;
+    display: block;
+}
+
+.image-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-info {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.image-info .size-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.image-info .dimensions {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.compression-progress {
+    width: 100%;
+    height: 4px;
+    background: #f0f0f0;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #007AFF, #00C6FF);
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+.download-btn {
+    padding: 8px 16px;
+    background: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.download-btn:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+/* 压缩质量控制样式 */
+.quality-control {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.quality-control input[type="range"] {
+    flex: 1;
+    height: 6px;
+    -webkit-appearance: none;
+    background: #e0e0e0;
+    border-radius: 3px;
+    outline: none;
+}
+
+.quality-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #007AFF;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.quality-control input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(0, 122, 255, 0.3);
+}
+
+#qualityValue {
+    min-width: 45px;
+    font-size: 0.9rem;
+    color: #333;
+    font-weight: 500;
+}
+
+.quality-tip {
+    color: #666;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+/* 上传提示样式更新 */
+.upload-tips {
+    margin-top: 1rem;
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.upload-tips p {
+    margin: 0.3rem 0;
+}
+
+/* 移除之前的 select 相关样式 */
+
+/* 放大镜效果 */
+.magnifier {
+    position: fixed;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 2px solid #007AFF;
+    pointer-events: none;
+    opacity: 0;
+    background-repeat: no-repeat;
+    box-shadow: 0 0 0 2px white, 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    backdrop-filter: brightness(1.1);
+    -webkit-backdrop-filter: brightness(1.1);
+    transition: opacity 0.2s ease;
+}
+
+/* 压缩操作按钮样式 */
+.compress-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.primary-btn, .secondary-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.primary-btn {
+    background: #007AFF;
+    color: white;
+}
+
+.secondary-btn {
+    background: rgba(0, 122, 255, 0.1);
+    color: #007AFF;
+}
+
+.primary-btn:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+.secondary-btn:hover {
+    background: rgba(0, 122, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.primary-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* 优化图片预览样式 */
+.image-preview {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+}

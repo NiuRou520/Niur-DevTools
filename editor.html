@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown编辑器 - Niur-DevTools</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <header class="app-header">
+        <nav class="nav-container">
+            <div class="logo">
+                <a href="./index.html">
+                    <i class="bi bi-tools"></i>
+                    Niur-DevTools
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="./index.html" class="nav-button">
+                    <i class="bi bi-house"></i>
+                    返回首页
+                </a>
+                <a href="https://github.com/yourusername/devtools" target="_blank" class="nav-button">
+                    <i class="bi bi-github"></i>
+                    GitHub
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 编辑器主体 -->
+    <div class="container">
+        <div class="editor-container">
+            <div class="toolbar">
+                <button onclick="document.getElementById('fileInput').click()">
+                    <i class="bi bi-file-earmark-text"></i> 打开文件
+                </button>
+                <button onclick="downloadMD()">
+                    <i class="bi bi-download"></i> 下载 MD
+                </button>
+                <button onclick="downloadHTML()">
+                    <i class="bi bi-file-earmark-code"></i> 导出 HTML
+                </button>
+                <button onclick="downloadPDF()" title="使用浏览器打印功能，选择'另存为 PDF'">
+                    <i class="bi bi-file-earmark-pdf"></i> 打印为 PDF
+                </button>
+            </div>
+            <input type="file" id="fileInput" accept=".md,.txt" style="display: none;" onchange="handleFileSelect(event)">
+            
+            <div class="editor-wrapper">
+                <div class="editor-section" id="dropZone">
+                    <textarea id="editor" placeholder="在此输入 Markdown 文本..." autofocus></textarea>
+                </div>
+                <div class="preview-section">
+                    <div id="preview"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+
+        function updatePreview() {
+            const markdownText = editor.value;
+            const htmlContent = marked.parse(markdownText);
+            preview.innerHTML = htmlContent;
+        }
+
+        editor.addEventListener('input', updatePreview);
+        
+        // 初始化预览
+        updatePreview();
+    </script>
+</body>
+</html> 

@@ -1,0 +1,362 @@
+/* 继承基础样式 */
+@import url('../styles.css');
+
+.converter-container {
+    background: var(--app-bg);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+/* 上传区域样式 */
+.upload-area {
+    border: 2px dashed rgba(0, 122, 255, 0.3);
+    border-radius: 12px;
+    padding: 3rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+    border-color: rgba(0, 122, 255, 0.6);
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.upload-area.drag-over {
+    border-color: #007AFF;
+    background: rgba(0, 122, 255, 0.1);
+}
+
+.upload-area i {
+    font-size: 3rem;
+    color: #007AFF;
+    margin-bottom: 1rem;
+}
+
+.upload-tips {
+    margin-top: 1rem;
+    color: #666;
+    font-size: 0.85rem;
+}
+
+/* 设置面板样式 */
+.settings-panel {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+}
+
+.setting-item {
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.setting-item label {
+    min-width: 120px;
+    color: #333;
+}
+
+/* 格式选择器样式 */
+.format-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background: white;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+    min-width: 120px;
+}
+
+.format-select:hover {
+    border-color: #007AFF;
+}
+
+.format-select option:disabled {
+    color: #999;
+    font-style: italic;
+}
+
+/* 预览区域样式优化 */
+.preview-content {
+    display: flex;
+    gap: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+}
+
+.preview-original,
+.preview-converted {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.preview-title {
+    font-weight: 500;
+    color: #333;
+}
+
+.preview-wrapper {
+    aspect-ratio: 16/9;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.file-info {
+    margin-top: 10px;
+}
+
+.file-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.file-name {
+    font-weight: 500;
+    color: #333;
+    word-break: break-all;
+}
+
+.file-type,
+.file-size {
+    color: #666;
+}
+
+.preview-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+}
+
+.preview-placeholder i {
+    font-size: 24px;
+}
+
+.convert-status {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.convert-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.download-btn {
+    background: #007AFF;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.download-btn:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+}
+
+.remove-btn {
+    background: transparent;
+    border: none;
+    color: #ff3b30;
+    padding: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+    background: rgba(255, 59, 48, 0.1);
+}
+
+/* 转换按钮样式 */
+.convert-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.primary-btn, .secondary-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.primary-btn {
+    background: #007AFF;
+    color: white;
+}
+
+.secondary-btn {
+    background: rgba(0, 122, 255, 0.1);
+    color: #007AFF;
+}
+
+.primary-btn:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+.secondary-btn:hover {
+    background: rgba(0, 122, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+/* 进度条样式 */
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #f0f0f0;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #007AFF, #00C6FF);
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+/* 预览项样式优化 */
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.remove-btn {
+    background: transparent;
+    border: none;
+    color: #ff3b30;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+    background: rgba(255, 59, 48, 0.1);
+}
+
+.preview-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f8f8f8;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.preview-image {
+    max-width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+}
+
+/* 清空按钮样式 */
+.clear-btn {
+    background: rgba(255, 59, 48, 0.1);
+    color: #ff3b30;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+    background: rgba(255, 59, 48, 0.2);
+    transform: translateY(-1px);
+}
+
+/* 添加合并 PDF 选项的样式 */
+#mergePdfOption {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+#mergeToPdf {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+#mergeToPdf:hover {
+    background: #45a049;
+    transform: translateY(-1px);
+}
+
+#mergeToPdf i {
+    font-size: 1.2em;
+}
+
+/* 优化多选时的预览列表样式 */
+.preview-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.preview-item {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+} 

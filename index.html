@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Niur-DevTools - 开发者在线工具集</title>
+    <link rel="stylesheet" href="styles/home.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+</head>
+<body>
+    <header class="app-header">
+        <nav class="nav-container">
+            <div class="logo">
+                <a href="./index.html">Niur-DevTools</a>
+            </div>
+            <div class="nav-links">
+                <a href="./index.html" class="active">首页</a>
+                <a href="#tools">工具</a>
+                <a href="#about">关于</a>
+                <a href="https://github.com/yourusername/devtools" target="_blank">
+                    <i class="bi bi-github"></i>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Niur-DevTools</h1>
+                <p>简单、高效、优雅的在线开发工具</p>
+            </div>
+        </section>
+
+        <section id="tools" class="tools-section">
+            <h2>工具列表</h2>
+            <div class="tools-grid">
+                <a href="./image-compressor.html" class="tool-card">
+                    <div class="tool-icon">
+                        <i class="bi bi-file-image"></i>
+                    </div>
+                    <h3>图片压缩工具</h3>
+                    <p>支持JPG、PNG、WEBP格式的图片压缩，可批量处理</p>
+                </a>
+                <a href="./format-converter.html" class="tool-card">
+                    <div class="tool-icon">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </div>
+                    <h3>格式转换工具</h3>
+                    <p>支持图片和PDF格式互转，包括JPG、PNG、WEBP、GIF和PDF</p>
+                </a>
+                <a href="./editor.html" class="tool-card">
+                    <div class="tool-icon">
+                        <i class="bi bi-markdown"></i>
+                    </div>
+                    <h3>Markdown编辑器</h3>
+                    <p>支持实时预览、导出HTML和PDF、自定义主题</p>
+                </a>
+                <div class="tool-card coming-soon">
+                    <div class="tool-icon">
+                        <i class="bi bi-braces"></i>
+                    </div>
+                    <div class="coming-soon-badge">即将推出</div>
+                    <h3>JSON格式化</h3>
+                    <p>JSON数据的格式化、压缩、验证和转换</p>
+                </div>
+                <div class="tool-card coming-soon">
+                    <div class="tool-icon">
+                        <i class="bi bi-code-slash"></i>
+                    </div>
+                    <div class="coming-soon-badge">即将推出</div>
+                    <h3>代码美化</h3>
+                    <p>支持多种编程语言的代码格式化和美化</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="faq" class="faq-section">
+            <h2>常见问题</h2>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>如何使用格式转换工具？</h3>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>1. 选择或拖放您要转换的文件（支持JPG、PNG、WEBP、GIF和PDF）</p>
+                        <p>2. 选择目标格式（JPG/PNG/WebP/GIF）</p>
+                        <p>3. 点击"开始转换"按钮</p>
+                        <p>4. 转换完成后可以预览和下载</p>
+                        <p>注意：PDF文件目前仅支持转换第一页，转换后的文件名会自动添加格式后缀</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>如何批量压缩图片？</h3>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>1. 打开图片压缩工具</p>
+                        <p>2. 选择或拖放多张图片（最多20张）</p>
+                        <p>3. 调整压缩比例（10-90%，表示要压缩掉的大小比例）</p>
+                        <p>4. 点击"开始压缩"</p>
+                        <p>5. 可以预览压缩效果，对比原图</p>
+                        <p>6. 单独下载或使用批量下载按钮</p>
+                        <p>特点：保持原始分辨率和EXIF信息，支持放大镜预览</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>如何使用Markdown编辑器？</h3>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>1. 在左侧编辑区输入Markdown文本</p>
+                        <p>2. 右侧实时显示渲染结果</p>
+                        <p>3. 支持代码高亮和Terminal风格代码块</p>
+                        <p>4. 可以导出为HTML或PDF（使用浏览器打印功能）</p>
+                        <p>5. 支持文件拖放上传和全屏模式</p>
+                        <p>6. 提供一键复制功能</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>支持哪些文件格式和大小？</h3>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>图片压缩：</strong></p>
+                        <p>- 支持JPG、PNG、WEBP格式</p>
+                        <p>- 压缩比例：10-90%</p>
+                        <p>- 保持原始分辨率和EXIF信息</p>
+                        <p><strong>格式转换：</strong></p>
+                        <p>- 输入：JPG、PNG、WEBP、GIF、PDF</p>
+                        <p>- 输出：JPG（92%质量）、PNG（无损）、WEBP（92%质量）、GIF（原始质量）</p>
+                        <p><strong>文件限制：</strong></p>
+                        <p>- 单个文件最大：50MB</p>
+                        <p>- 批量处理：最多20个文件</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>是否支持离线使用？数据安全吗？</h3>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>- 所有工具都支持完全离线使用</p>
+                        <p>- 文件处理完全在本地进行，不会上传到服务器</p>
+                        <p>- 使用现代浏览器API，确保数据安全</p>
+                        <p>- 支持PWA，可安装为本地应用</p>
+                        <p>- 代码完全开源，可以审查安全性</p>
+                        <p>- 保证您的文件安全和隐私</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about-section">
+            <h2>关于项目</h2>
+            <div class="about-content">
+                <p>Niur-DevTools 是一个开源的在线开发工具集，旨在为开发者提供简单、高效的开发辅助工具。</p>
+                <p>所有工具都采用现代化的设计，支持离线使用，注重用户体验。</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <div class="footer-content">
+            <p>© 2024 Niur-DevTools. 开源项目</p>
+            <div class="footer-links">
+                <a href="https://github.com/yourusername/devtools" target="_blank">GitHub</a>
+                <a href="#about">关于</a>
+                <a href="#contact">联系我们</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="scripts/main.js"></script>
+</body>
+</html> 

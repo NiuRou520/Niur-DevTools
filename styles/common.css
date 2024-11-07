@@ -1,0 +1,31 @@
+/* 新建一个通用样式文件 */
+.glass-effect {
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+}
+
+/* 移除所有内联样式，改用类名 */
+.preview-image {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+/* 添加表单标签的可访问性支持 */
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* 添加占位符样式 */
+.placeholder {
+    color: #666;
+    font-style: italic;
+} 
