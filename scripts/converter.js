@@ -457,17 +457,16 @@ function showToast(message, type = 'success') {
 // 修改 handlePDFConversion 函数
 async function handlePDFConversion(files) {
     try {
-        // 检查 jsPDF 是否正确加载
         if (!window.jspdf || !window.jspdf.jsPDF) {
             throw new Error('jsPDF 库未正确加载');
         }
 
         showToast('正在生成PDF...', 'info');
         
-        // 创建新的 jsPDF 实例
+        // 创建新的 jsPDF 实例，使用图片的尺寸比例来决定页面方向
         const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF();
         let isFirstPage = true;
+        let pdf;
 
         for (const file of files) {
             if (!file.type.startsWith('image/')) {
@@ -477,17 +476,29 @@ async function handlePDFConversion(files) {
             try {
                 const img = await createImageFromFile(file);
                 
-                // 计算图片在 PDF 中的尺寸
-                const imgWidth = pdf.internal.pageSize.getWidth();
-                const imgHeight = (img.naturalHeight * imgWidth) / img.naturalWidth;
-
-                // 如果不是第一页，添加新页
-                if (!isFirstPage) {
-                    pdf.addPage();
+                // 根据第一张图片的尺寸决定 PDF 的尺寸和方向
+                if (isFirstPage) {
+                    // 确定页面方向
+                    const orientation = img.naturalWidth > img.naturalHeight ? 'landscape' : 'portrait';
+                    pdf = new jsPDF({
+                        orientation: orientation,
+                        unit: 'px',
+                        format: [img.naturalWidth, img.naturalHeight]
+                    });
+                } else {
+                    pdf.addPage([img.naturalWidth, img.naturalHeight], img.naturalWidth > img.naturalHeight ? 'landscape' : 'portrait');
                 }
 
-                // 添加图片到 PDF
-                pdf.addImage(img, 'JPEG', 0, 0, imgWidth, imgHeight);
+                // 添加图片到 PDF，使用完整页面大小
+                pdf.addImage(
+                    img, 
+                    'PNG', 
+                    0,  // x 坐标
+                    0,  // y 坐标
+                    img.naturalWidth,  // 宽度
+                    img.naturalHeight  // 高度
+                );
+                
                 isFirstPage = false;
 
             } catch (error) {
@@ -610,9 +621,52 @@ async function convertFile(file, previewItem) {
         `;
 
         if (file.type === 'application/pdf' && targetFormat !== 'pdf') {
-            // PDF 转图片
-            const canvas = await convertPDFToImage(file, targetFormat);
-            await updatePreview(canvas, previewPlaceholder, downloadBtn, targetFormat, file.name);
+            // PDF 转图片 - 处理多页
+            const canvases = await convertPDFToImage(file, targetFormat);
+            
+            // 创建 ZIP 文件来保存所有图片
+            const zip = new JSZip();
+            
+            // 添加每一页到 ZIP
+            for (let i = 0; i < canvases.length; i++) {
+                const canvas = canvases[i];
+                const blob = await new Promise(resolve => {
+                    canvas.toBlob(resolve, `image/${targetFormat}`, 0.92);
+                });
+                zip.file(`page_${i + 1}.${targetFormat}`, blob);
+            }
+            
+            // 生成 ZIP 文件
+            const zipBlob = await zip.generateAsync({type: 'blob'});
+            
+            // 更新预览（显示第一页）
+            await updatePreview(canvases[0], previewPlaceholder, downloadBtn, targetFormat, file.name);
+            
+            // 修改下载按钮行为
+            const url = URL.createObjectURL(zipBlob);
+            downloadBtn.onclick = () => {
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${file.name.replace('.pdf', '')}_all_pages.zip`;
+                a.click();
+                URL.revokeObjectURL(url);
+            };
+            
+            // 添加页数信息
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'preview-info';
+            infoDiv.innerHTML = `
+                <div class="info-item">
+                    <i class="bi bi-file-earmark"></i>
+                    格式: ${targetFormat.toUpperCase()}
+                </div>
+                <div class="info-item">
+                    <i class="bi bi-files"></i>
+                    总页数: ${canvases.length}
+                </div>
+            `;
+            previewPlaceholder.appendChild(infoDiv);
+            
         } else if (file.type.startsWith('image/')) {
             // 图片转换
             const img = await createImageFromFile(file);
@@ -654,7 +708,7 @@ async function convertFile(file, previewItem) {
     }
 }
 
-// 添加 PDF 转图片的函数
+// 修改 convertPDFToImage 函数以支持多页转换
 async function convertPDFToImage(file, targetFormat) {
     try {
         // 读取 PDF 文件
@@ -670,27 +724,36 @@ async function convertPDFToImage(file, targetFormat) {
         
         // 加载 PDF 文档
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const numPages = pdf.numPages;
         
-        // 获取第一页
-        const page = await pdf.getPage(1);
+        // 创建一个数组来存储所有页面的 canvas
+        const canvases = [];
         
-        // 创建 canvas
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        
-        // 设置更高的缩放比例以获得更好的质量
-        const viewport = page.getViewport({ scale: 2.0 });
-        
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        
-        // 渲染 PDF 页面到 canvas
-        await page.render({
-            canvasContext: context,
-            viewport: viewport
-        }).promise;
+        // 处理每一页
+        for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+            // 获取页面
+            const page = await pdf.getPage(pageNum);
+            
+            // 创建 canvas
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            // 设置更高的缩放比例以获得更好的质量
+            const viewport = page.getViewport({ scale: 2.0 });
+            
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            
+            // 渲染 PDF 页面到 canvas
+            await page.render({
+                canvasContext: context,
+                viewport: viewport
+            }).promise;
 
-        return canvas;
+            canvases.push(canvas);
+        }
+
+        return canvases;
 
     } catch (error) {
         console.error('PDF 转换失败:', error);

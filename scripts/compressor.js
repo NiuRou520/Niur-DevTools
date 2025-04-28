@@ -84,47 +84,136 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// 处理文件选择
+// 在文件开头添加 PDF 转图片的函数
+async function convertPDFToImage(file) {
+    try {
+        // 读取 PDF 文件
+        const arrayBuffer = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = () => reject(new Error('PDF 文件读取失败'));
+            reader.readAsArrayBuffer(file);
+        });
+
+        // 加载 PDF 文档
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const numPages = pdf.numPages;
+        
+        // 创建一个数组来存储所有页面的 canvas
+        const canvases = [];
+        
+        // 处理每一页
+        for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            // 设置更高的缩放比例以获得更好的质量
+            const viewport = page.getViewport({ scale: 2.0 });
+            
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            
+            // 渲染 PDF 页面到 canvas
+            await page.render({
+                canvasContext: context,
+                viewport: viewport
+            }).promise;
+
+            // 将 canvas 转换为 Blob
+            const blob = await new Promise(resolve => {
+                canvas.toBlob(resolve, 'image/jpeg', 0.92);
+            });
+
+            // 创建文件对象
+            const imageFile = new File([blob], `page_${pageNum}.jpg`, {
+                type: 'image/jpeg'
+            });
+
+            canvases.push(imageFile);
+        }
+
+        return canvases;
+    } catch (error) {
+        console.error('PDF 转换失败:', error);
+        throw new Error('PDF 转换失败: ' + error.message);
+    }
+}
+
+// 修改 handleFiles 函数
 async function handleFiles(event) {
-    const files = Array.from(event.target.files).filter(file => file.type.startsWith('image/'));
+    const files = Array.from(event.target.files).filter(file => 
+        file.type.startsWith('image/') || file.type === 'application/pdf'
+    );
     
     if (files.length === 0) {
-        showToast('请选择图片文件', 'error');
+        showToast('请选择有效的文件格式', 'error');
         return;
     }
 
     if (files.length > MAX_FILES) {
-        showToast(`最多只能选择 ${MAX_FILES} 张图片`, 'error');
+        showToast(`最多只能选择 ${MAX_FILES} 个文件`, 'error');
         return;
     }
 
-    currentFiles = files;
     const imagesList = document.getElementById('imagesList');
     imagesList.innerHTML = ''; // 清空列表
 
-    // 只创建预览，不压缩
+    currentFiles = files;
+
+    // 创建预览
     for (const file of files) {
         const imageItem = createImageItem(file);
         imagesList.appendChild(imageItem);
-        await showPreview(file, imageItem); // 只显示预览
+        await showPreview(file, imageItem);
     }
 
     // 显示压缩按钮
     document.getElementById('startCompress').style.display = 'block';
 }
 
-// 新增预览函数
+// 修改 showPreview 函数
 async function showPreview(file, imageItem) {
     try {
-        // 显示原图预览
         const originalPreview = imageItem.querySelector('.original');
-        const originalUrl = URL.createObjectURL(file);
-        originalPreview.src = originalUrl;
+        
+        if (file.type === 'application/pdf') {
+            // PDF 预览处理
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const page = await pdf.getPage(1); // 获取第一页用于预览
+            
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            // 设置预览尺寸
+            const viewport = page.getViewport({ scale: 1.0 });
+            const scale = Math.min(300 / viewport.height, 1.0);
+            const scaledViewport = page.getViewport({ scale });
 
-        // 获取图片尺寸
-        const dimensions = await getImageDimensions(originalUrl);
-        imageItem.querySelector('.dimensions').textContent = 
-            `${dimensions.width} × ${dimensions.height}`;
+            canvas.height = scaledViewport.height;
+            canvas.width = scaledViewport.width;
+
+            await page.render({
+                canvasContext: context,
+                viewport: scaledViewport
+            }).promise;
+
+            originalPreview.src = canvas.toDataURL();
+
+            // 更新文件信息
+            imageItem.querySelector('.dimensions').textContent = 
+                `PDF - ${pdf.numPages} 页`;
+        } else {
+            // 图片预览处理
+            const originalUrl = URL.createObjectURL(file);
+            originalPreview.src = originalUrl;
+
+            // 获取图片尺寸
+            const dimensions = await getImageDimensions(originalUrl);
+            imageItem.querySelector('.dimensions').textContent = 
+                `${dimensions.width} × ${dimensions.height}`;
+        }
 
         // 显示原始文件大小
         imageItem.querySelector('.compressed-size').textContent = 
@@ -132,18 +221,23 @@ async function showPreview(file, imageItem) {
 
     } catch (error) {
         console.error('预览失败:', error);
-        showToast('图片预览失败', 'error');
+        showToast('文件预览失败', 'error');
     }
 }
 
-// 创建图片项
+// 修改 createImageItem 函数，添加页码显示
 function createImageItem(file) {
     const item = document.createElement('div');
     item.className = 'image-item';
+    
+    // 检查文件名是否包含页码信息
+    const isFromPDF = file.name.match(/page_(\d+)\.jpg/);
+    const pageInfo = isFromPDF ? `<span class="page-info">第 ${isFromPDF[1]} 页</span>` : '';
+
     item.innerHTML = `
         <div class="image-preview-container">
             <div class="original-preview">
-                <h4>原图</h4>
+                <h4>原图 ${pageInfo}</h4>
                 <div class="image-preview-wrapper">
                     <img class="image-preview original" alt="原图预览">
                 </div>
@@ -201,8 +295,202 @@ function showImageModal(src) {
     setTimeout(() => modal.classList.add('active'), 10);
 }
 
-// 处理图片
+// 修改 processImage 函数
 async function processImage(file, imageItem) {
+    try {
+        if (file.type === 'application/pdf') {
+            await processPDF(file, imageItem);
+        } else {
+            await processImageFile(file, imageItem);
+        }
+    } catch (error) {
+        console.error('文件处理失败:', error);
+        showToast('文件处理失败', 'error');
+    }
+}
+
+// 添加 PDF 处理函数
+async function processPDF(file, imageItem) {
+    try {
+        // 添加进度条
+        const progressBar = document.createElement('div');
+        progressBar.className = 'compression-progress';
+        progressBar.innerHTML = '<div class="progress-bar"></div>';
+        imageItem.appendChild(progressBar);
+
+        // 获取压缩比例
+        const compressionRatio = parseInt(document.getElementById('quality').value) / 100;
+
+        // 读取 PDF 文件
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const numPages = pdf.numPages;
+
+        // 创建新的 PDF 文档，先不指定尺寸和方向
+        const { jsPDF } = window.jspdf;
+        let newPdf = null;
+
+        // 处理每一页
+        for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const viewport = page.getViewport({ scale: 1 });
+
+            // 创建 canvas
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            // 设置 canvas 尺寸为页面实际尺寸
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            // 渲染页面到 canvas
+            await page.render({
+                canvasContext: context,
+                viewport: viewport
+            }).promise;
+
+            // 将 canvas 转换为图片数据
+            const imgData = canvas.toDataURL('image/jpeg', 1 - compressionRatio);
+
+            // 如果是第一页，初始化 PDF 文档并设置正确的尺寸和方向
+            if (pageNum === 1) {
+                // 处理长图情况
+                let orientation = viewport.width > viewport.height ? 'l' : 'p';
+                let format = [viewport.width, viewport.height];
+
+                // 检查是否需要缩放（如果尺寸超过 jsPDF 的限制）
+                const MAX_PDF_SIZE = 14400; // jsPDF 的最大尺寸限制
+                if (viewport.width > MAX_PDF_SIZE || viewport.height > MAX_PDF_SIZE) {
+                    const scale = Math.min(MAX_PDF_SIZE / viewport.width, MAX_PDF_SIZE / viewport.height);
+                    format = [viewport.width * scale, viewport.height * scale];
+                }
+
+                newPdf = new jsPDF({
+                    orientation: orientation,
+                    unit: 'pt', // 使用点作为单位
+                    format: format,
+                    compress: true, // 启用压缩
+                    putOnlyUsedFonts: true, // 只嵌入使用的字体
+                    precision: 2 // 减少精度以减小文件大小
+                });
+            } else {
+                // 为后续页面添加新页，同样处理长图情况
+                let pageWidth = viewport.width;
+                let pageHeight = viewport.height;
+
+                // 检查是否需要缩放
+                const MAX_PDF_SIZE = 14400;
+                if (pageWidth > MAX_PDF_SIZE || pageHeight > MAX_PDF_SIZE) {
+                    const scale = Math.min(MAX_PDF_SIZE / pageWidth, MAX_PDF_SIZE / pageHeight);
+                    pageWidth *= scale;
+                    pageHeight *= scale;
+                }
+
+                newPdf.addPage([pageWidth, pageHeight]);
+            }
+
+            try {
+                // 添加图片到 PDF，处理长图情况
+                const pageWidth = newPdf.internal.pageSize.getWidth();
+                const pageHeight = newPdf.internal.pageSize.getHeight();
+
+                // 计算图片缩放比例，确保适应页面
+                const imgRatio = viewport.width / viewport.height;
+                const pageRatio = pageWidth / pageHeight;
+
+                let imgWidth = pageWidth;
+                let imgHeight = pageWidth / imgRatio;
+
+                if (imgHeight > pageHeight) {
+                    imgHeight = pageHeight;
+                    imgWidth = pageHeight * imgRatio;
+                }
+
+                // 计算居中位置
+                const x = (pageWidth - imgWidth) / 2;
+                const y = (pageHeight - imgHeight) / 2;
+
+                // 使用 addImage 的完整参数来确保正确处理
+                newPdf.addImage(
+                    imgData,
+                    'JPEG',
+                    x,
+                    y,
+                    imgWidth,
+                    imgHeight,
+                    `page-${pageNum}`,
+                    'FAST',
+                    0 // 旋转角度
+                );
+            } catch (addImageError) {
+                console.error('添加图片到PDF失败:', addImageError);
+                throw new Error('处理长图失败，请尝试降低压缩比例');
+            }
+
+            // 更新进度条
+            const progress = pageNum / numPages;
+            const progressBarElement = progressBar.querySelector('.progress-bar');
+            progressBarElement.style.width = `${progress * 100}%`;
+        }
+
+        // 生成压缩后的 PDF，使用优化的设置
+        const compressedPdfBlob = await newPdf.output('blob');
+
+        // 显示压缩后预览（第一页）
+        const compressedArrayBuffer = await compressedPdfBlob.arrayBuffer();
+        const compressedPdf = await pdfjsLib.getDocument({ data: compressedArrayBuffer }).promise;
+        const firstPage = await compressedPdf.getPage(1);
+        
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        
+        const viewport = firstPage.getViewport({ scale: 1.0 });
+        const scale = Math.min(300 / viewport.height, 1.0);
+        const scaledViewport = firstPage.getViewport({ scale });
+
+        canvas.height = scaledViewport.height;
+        canvas.width = scaledViewport.width;
+
+        await firstPage.render({
+            canvasContext: context,
+            viewport: scaledViewport
+        }).promise;
+
+        const compressedPreview = imageItem.querySelector('.compressed');
+        compressedPreview.src = canvas.toDataURL();
+
+        // 更新压缩信息
+        const actualRatio = ((1 - compressedPdfBlob.size / file.size) * 100).toFixed(1);
+        imageItem.querySelector('.compressed-size').textContent = 
+            `${formatFileSize(compressedPdfBlob.size)} (压缩了 ${actualRatio}%)`;
+
+        // 设置下载按钮
+        const downloadBtn = imageItem.querySelector('.download-btn');
+        downloadBtn.style.display = 'block';
+        downloadBtn.onclick = () => {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(compressedPdfBlob);
+            link.download = `compressed_${file.name}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        };
+
+        // 移除进度条
+        setTimeout(() => {
+            progressBar.remove();
+        }, 500);
+
+    } catch (error) {
+        console.error('PDF 处理失败:', error);
+        imageItem.querySelector('.compressed-size').textContent = 'PDF 处理失败';
+        showToast('PDF 处理失败: ' + error.message, 'error');
+    }
+}
+
+// 重命名原来的 processImage 函数为 processImageFile
+async function processImageFile(file, imageItem) {
     try {
         // 显示原图预览
         const originalPreview = imageItem.querySelector('.original');
@@ -228,12 +516,12 @@ async function processImage(file, imageItem) {
         const options = {
             maxSizeMB: targetSize / (1024 * 1024),
             useWebWorker: true,
-            maxIteration: 10, // 增加迭代次数以获得更好的质量
-            initialQuality: 0.9, // 从高质量开始
-            alwaysKeepResolution: true, // 保持分辨率
-            exifOrientation: true, // 保持图片方向
-            fileType: 'image/jpeg', // 使用JPEG格式以获得更好的压缩效果
-            strict: false, // 允许质量调整以达到目标大小
+            maxIteration: 10,
+            initialQuality: 0.9,
+            alwaysKeepResolution: true,
+            exifOrientation: true,
+            fileType: 'image/jpeg',
+            strict: false,
             onProgress: (progress) => {
                 const progressBarElement = progressBar.querySelector('.progress-bar');
                 progressBarElement.style.width = `${progress * 100}%`;
@@ -263,7 +551,7 @@ async function processImage(file, imageItem) {
             imageItem.querySelector('.compressed-size').textContent = 
                 `${formatFileSize(compressedFile.size)} (压缩了 ${actualRatio}%)`;
 
-            // 存储压缩后的文件以供下载
+            // 存储压缩的文件以供下载
             imageItem.dataset.compressedFile = compressedUrl;
 
             // 显示下载按钮
